@@ -3,83 +3,47 @@ const Joi = require('joi');
 
 const { Schema, Types } = mongoose;
 
-const OrderItemsSchema = new Schema({
-  name: String,
-  id: {
-    type: Types.ObjectId,
-    ref: 'Product'
-  },
-  qty: {
-    type: Number,
-    required: true,
-    min: 1,
-    max: 100
-  },
-  price: {
-    type: Number,
-    required: true
-  }
-});
-
-const OrderItemJoiSchema = Joi.object({
-  name: Joi.string().required(),
-  qty: Joi.number().integer().positive().greater(0).required(),
-  price: Joi.number().greater(0).required()
-});
-
-const OrderPaymentsSchema = new Schema({
-  method: {
-    type: String,
-    required: true
-  },
-  amount: {
-    type: Number,
-    required: true
-  },
-  transactionCode: {
-    type: String
-  }
-});
-
-const OrderPaymentsJoiSchema = Joi.object({
-  method: Joi.string().required(),
-  amount: Joi.number().positive().required()
-});
-
 const ContactSchema = new Schema({
-  status: {
+  phoneNo: {
     type: String,
-    default: 'NEW'
+    required: true
   },
-  hotel: {
-    type: Types.ObjectId,
-    ref: 'Hotel',
-    require: true
+  email: {
+    type: String,
+    required: true
   },
-  totalItems: {
+  idNo: {
     type: Number,
-    require: true
   },
-  totalPrice: {
-    type: Number,
-    require: true
+  reqNo: {
+    type: String
   },
-  items: [OrderItemsSchema],
-  payments: [OrderPaymentsSchema],
-  servedBy: {
+  name: {
+    type: String
+  },
+  course: {
     type: Types.ObjectId,
-    ref: 'User'
+    ref: 'Course'
   },
-  customerId: {
-    type: Types.ObjectId,
-    ref: 'Customer'
+  isPublic: {
+    type: Types.Boolean,
+    default: false
+  },
+  groups: {
+    type: Types.Array
   }
 }, { timestamps: true });
 
 const Contact = mongoose.model('Contact', ContactSchema);
 
+const ContactsJoiSchema = Joi.object({
+  name: Joi.string().required(),
+  email: Joi.string().email().lowercase().required(),
+  phone: Joi.number().integer().positive().greater(0).required(),
+  idNo: Joi.number().greater(0).required(),
+  course: Joi.number().greater(0).required(),
+  isPublic: Joi.boolean(),
+});
+
 module.default = Contact;
-module.exports.validateOrderItemObject = (item) => Joi.validate(item, OrderItemJoiSchema);
-module.exports.validateOrderPaymentObject = (payment) => Joi.validate(payment, OrderPaymentsJoiSchema);
-module.exports.OrderItemSchema = mongoose.model('OrderItemsSchema', OrderItemsSchema);
-module.exports.OrderPaymentsSchema = mongoose.model('OrderPaymentsSchema', OrderPaymentsSchema);
+module.exports.validate = (contact) => Joi.validate(contact, ContactsJoiSchema);
